@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NeuroPlan</title>
+    <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<h1>🧠 NeuroPlan</h1>
+<p>Adaptive Study Scheduler</p>
+
+<div class="input-box">
+    <input id="sub" placeholder="Subject">
+    <input id="exam" type="date">
+    <input id="level" type="number" placeholder="Difficulty (1-5)">
+    <button onclick="pushData()">Add</button>
+</div>
+
+<button onclick="createSchedule()">Generate Schedule</button>
+
+<h3>Subjects</h3>
+<ul id="list"></ul>
+
+<h3>Plan</h3>
+<ul id="output"></ul>
+
+<script>
+let data = [];
+
+function pushData() {
+    let name = document.getElementById("sub").value;
+    let exam = document.getElementById("exam").value;
+    let level = parseInt(document.getElementById("level").value);
+
+    data.push({ name: name, exam_date: exam, difficulty: level });
+
+    let li = document.createElement("li");
+    li.innerText = `${name} | ${exam} | Level ${level}`;
+    document.getElementById("list").appendChild(li);
+}
+
+function createSchedule() {
+    fetch("/api/schedule", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ subjects: data })
+    })
+    .then(res => res.json())
+    .then(plan => {
+        let out = document.getElementById("output");
+        out.innerHTML = "";
+
+        plan.forEach(p => {
+            let li = document.createElement("li");
+            li.innerText = `${p.date} → ${p.note}`;
+            out.appendChild(li);
+        });
+    });
+}
+</script>
+
+</body>
+</html>
